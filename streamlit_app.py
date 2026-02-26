@@ -75,9 +75,13 @@ def generate_be_pdf(study_code, num_subjects, num_timepoints, num_periods):
     buffer.seek(0)
     return buffer
 
+# ==========================================
+# 3. GIAO DIỆN NHẬP LIỆU
+# ==========================================
 with st.form("input_form"):
     col1, col2 = st.columns(2)
     with col1:
+        # Sửa lại value thành chữ "18BE2025" thay vì gọi session_state
         study_code = st.text_input("Mã Nghiên Cứu (VD: 18BE2025)", value="18BE2025")
         num_subjects = st.number_input("Số Tình Nguyện Viên", min_value=1, value=10, step=1)
     with col2:
@@ -87,18 +91,18 @@ with st.form("input_form"):
     submit_btn = st.form_submit_button("⚙️ Tạo File Nhãn PDF")
 
 # ==========================================
-# LƯU FILE VÀO BỘ NHỚ TẠM (SESSION STATE)
+# 4. LƯU FILE VÀO BỘ NHỚ TẠM (SESSION STATE)
 # ==========================================
 if submit_btn:
     with st.spinner("Đang xử lý dữ liệu..."):
         pdf_buffer = generate_be_pdf(study_code, num_subjects, num_timepoints, num_periods)
         
-        # Lưu file và tên file vào session_state để không bị mất khi load lại trang
+        # Lưu file và tên file vào session_state
         st.session_state['pdf_buffer'] = pdf_buffer
         st.session_state['file_name'] = f"Nhan_{study_code}_{num_periods}Periods.pdf"
 
 # ==========================================
-# HIỂN THỊ NÚT TẢI (ĐƯỢC ĐƯA RA NGOÀI VÒNG LẶP IF FORM)
+# 5. HIỂN THỊ NÚT TẢI
 # ==========================================
 if 'pdf_buffer' in st.session_state:
     st.success("✅ File đã sẵn sàng! Bấm nút bên dưới để tải về.")
