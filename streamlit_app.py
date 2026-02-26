@@ -121,6 +121,12 @@ st.set_page_config(
     layout="centered"
 )
 
+# Khởi tạo session_state TRƯỚC tất cả widget
+if "pdf_buffer" not in st.session_state:
+    st.session_state.pdf_buffer = None
+if "pdf_filename" not in st.session_state:
+    st.session_state.pdf_filename = None
+
 st.title("🧪 Tạo Nhãn Ống Nghiệm BE")
 st.markdown("Nhập thông số nghiên cứu bên dưới, sau đó nhấn **Tạo PDF** để tải file về.")
 
@@ -168,11 +174,12 @@ col_c.metric("Tổng nhãn (×3 bản)", f"{total_tubes * 3:,}")
 
 st.divider()
 
-# Khởi tạo session_state để lưu PDF buffer
-if "pdf_buffer" not in st.session_state:
+# Reset PDF cũ nếu thông số thay đổi
+current_key = f"{study_code}_{num_subjects}_{num_timepoints}_{num_periods}"
+if st.session_state.get("last_key") != current_key:
     st.session_state.pdf_buffer = None
-if "pdf_filename" not in st.session_state:
     st.session_state.pdf_filename = None
+    st.session_state.last_key = current_key
 
 if st.button("🖨️ Tạo PDF", type="primary", use_container_width=True):
     if not study_code.strip():
