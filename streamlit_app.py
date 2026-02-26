@@ -168,7 +168,13 @@ col_c.metric("Tổng nhãn (×3 bản)", f"{total_tubes * 3:,}")
 
 st.divider()
 
-if st.button("🖨️ Tạo PDF & Tải về", type="primary", use_container_width=True):
+# Khởi tạo session_state để lưu PDF buffer
+if "pdf_buffer" not in st.session_state:
+    st.session_state.pdf_buffer = None
+if "pdf_filename" not in st.session_state:
+    st.session_state.pdf_filename = None
+
+if st.button("🖨️ Tạo PDF", type="primary", use_container_width=True):
     if not study_code.strip():
         st.error("⚠️ Vui lòng nhập Mã nghiên cứu!")
     else:
@@ -180,18 +186,21 @@ if st.button("🖨️ Tạo PDF & Tải về", type="primary", use_container_wid
                     num_timepoints,
                     num_periods
                 )
-                filename = f"Nhan_{study_code.strip()}_{num_periods}Periods.pdf"
-
-                st.success("✅ Tạo PDF thành công!")
-                st.download_button(
-                    label="⬇️ Tải xuống PDF",
-                    data=pdf_buffer,
-                    file_name=filename,
-                    mime="application/pdf",
-                    use_container_width=True
-                )
+                st.session_state.pdf_buffer = pdf_buffer.getvalue()
+                st.session_state.pdf_filename = f"Nhan_{study_code.strip()}_{num_periods}Periods.pdf"
             except Exception as e:
                 st.error(f"❌ Lỗi khi tạo PDF: {e}")
+
+# Nút tải xuống luôn hiển thị nếu đã có PDF trong session
+if st.session_state.pdf_buffer is not None:
+    st.success("✅ Tạo PDF thành công! Nhấn nút bên dưới để tải về.")
+    st.download_button(
+        label="⬇️ Tải xuống PDF",
+        data=st.session_state.pdf_buffer,
+        file_name=st.session_state.pdf_filename,
+        mime="application/pdf",
+        use_container_width=True
+    )
 
 st.divider()
 st.caption("Mỗi giai đoạn gồm 3 bản nhãn: Ống Tổng (theo đối tượng), Ống A (theo thời điểm), Ống S (theo thời điểm). Khổ giấy: Tomy A4 – 5×6 nhãn/tờ.")
