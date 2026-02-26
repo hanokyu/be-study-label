@@ -4,41 +4,65 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import mm
 
+# ==========================================
+# 1. CÀI ĐẶT GIAO DIỆN STREAMLIT
+# ==========================================
 st.set_page_config(page_title="Tạo Nhãn Ống Nghiệm BE", page_icon="🧪", layout="centered")
 st.title("🧪 Phần Mềm Tạo Nhãn Ống Nghiệm BE")
-st.markdown("Nhập thông số nghiên cứu bên dưới để tự động tạo file PDF in nhãn.")
+st.markdown("Nhập thông số nghiên cứu bên dưới để tự động tạo file PDF in nhãn Tomy A4.")
 
+# ==========================================
+# 2. HÀM TẠO PDF (CHẠY TRÊN BỘ NHỚ ẢO)
+# ==========================================
 def generate_be_pdf(study_code, num_subjects, num_timepoints, num_periods):
+    # Khởi tạo bộ nhớ đệm để lưu file PDF (không lưu ra ổ cứng server)
     buffer = io.BytesIO()
+    
     all_labels = []
     subjects = range(1, num_subjects + 1)
     timepoints = [f"{i:02d}" for i in range(num_timepoints)]
     
     for period in range(1, num_periods + 1):
-        # BẢN 1: TỔNG
-        all_labels.append({'is_header': True, 'line1': f"GIAI DOAN {period}", 'line2': "ONG TONG", 'line3': "(Theo doi tuong)"})
+        # -- BẢN 1: TỔNG --
+        all_labels.append({
+            'is_header': True, 'line1': f"GIAI DOAN {period}", 'line2': "ONG TONG", 'line3': "(Theo doi tuong)"
+        })
         for sub in subjects:
             for tp in timepoints:
-                all_labels.append({'is_header': False, 'Study_Code': f"{study_code} - Per {period}", 'Subject_Time': f"S{sub:02d} - T{tp}", 'Tube_ID': f"{period}.{sub:02d}.{tp}_Tong"})
+                all_labels.append({
+                    'is_header': False, 'Study_Code': f"{study_code} - Per {period}",
+                    'Subject_Time': f"S{sub:02d} - T{tp}", 'Tube_ID': f"{period}.{sub:02d}.{tp}_Tong"
+                })
         while len(all_labels) % 30 != 0:
             all_labels.append(None)
             
-        # BẢN 2: ỐNG A
-        all_labels.append({'is_header': True, 'line1': f"GIAI DOAN {period}", 'line2': "ONG A", 'line3': "(Theo thoi diem)"})
+        # -- BẢN 2: ỐNG A --
+        all_labels.append({
+            'is_header': True, 'line1': f"GIAI DOAN {period}", 'line2': "ONG A", 'line3': "(Theo thoi diem)"
+        })
         for tp in timepoints:
             for sub in subjects:
-                all_labels.append({'is_header': False, 'Study_Code': f"{study_code} - Per {period}", 'Subject_Time': f"S{sub:02d} - T{tp}", 'Tube_ID': f"{period}.{sub:02d}.{tp}_A"})
+                all_labels.append({
+                    'is_header': False, 'Study_Code': f"{study_code} - Per {period}",
+                    'Subject_Time': f"S{sub:02d} - T{tp}", 'Tube_ID': f"{period}.{sub:02d}.{tp}_A"
+                })
         while len(all_labels) % 30 != 0:
             all_labels.append(None)
             
-        # BẢN 3: ỐNG S
-        all_labels.append({'is_header': True, 'line1': f"GIAI DOAN {period}", 'line2': "ONG S", 'line3': "(Theo thoi diem)"})
+        # -- BẢN 3: ỐNG S --
+        all_labels.append({
+            'is_header': True, 'line1': f"GIAI DOAN {period}", 'line2': "ONG S", 'line3': "(Theo thoi diem)"
+        })
         for tp in timepoints:
             for sub in subjects:
-                all_labels.append({'is_header': False, 'Study_Code': f"{study_code} - Per {period}", 'Subject_Time': f"S{sub:02d} - T{tp}", 'Tube_ID': f"{period}.{sub:02d}.{tp}_S"})
+                all_labels.append({
+                    'is_header': False, 'Study_Code': f"{study_code} - Per {period}",
+                    'Subject_Time': f"S{sub:02d} - T{tp}", 'Tube_ID': f"{period}.{sub:02d}.{tp}_S"
+                })
         while len(all_labels) % 30 != 0:
             all_labels.append(None)
 
+    # -- VẼ PDF --
     c = canvas.Canvas(buffer, pagesize=A4)
     width, height = A4
     cols, rows = 5, 6
@@ -81,7 +105,6 @@ def generate_be_pdf(study_code, num_subjects, num_timepoints, num_periods):
 with st.form("input_form"):
     col1, col2 = st.columns(2)
     with col1:
-        # Sửa lại value thành chữ "18BE2025" thay vì gọi session_state
         study_code = st.text_input("Mã Nghiên Cứu (VD: 18BE2025)", value="18BE2025")
         num_subjects = st.number_input("Số Tình Nguyện Viên", min_value=1, value=10, step=1)
     with col2:
@@ -91,18 +114,19 @@ with st.form("input_form"):
     submit_btn = st.form_submit_button("⚙️ Tạo File Nhãn PDF")
 
 # ==========================================
-# 4. LƯU FILE VÀO BỘ NHỚ TẠM (SESSION STATE)
+# 4. XỬ LÝ KHI BẤM NÚT TẠO FILE VÀ LƯU VÀO STATE
 # ==========================================
 if submit_btn:
     with st.spinner("Đang xử lý dữ liệu..."):
+        # Gọi hàm tạo PDF
         pdf_buffer = generate_be_pdf(study_code, num_subjects, num_timepoints, num_periods)
         
-        # Lưu file và tên file vào session_state
+        # Lưu thẳng file và tên vào session_state để tránh mất khi load lại trang
         st.session_state['pdf_buffer'] = pdf_buffer
         st.session_state['file_name'] = f"Nhan_{study_code}_{num_periods}Periods.pdf"
 
 # ==========================================
-# 5. HIỂN THỊ NÚT TẢI
+# 5. HIỂN THỊ NÚT TẢI (ĐƯỢC BẢO VỆ TRONG SESSION STATE)
 # ==========================================
 if 'pdf_buffer' in st.session_state:
     st.success("✅ File đã sẵn sàng! Bấm nút bên dưới để tải về.")
