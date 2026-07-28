@@ -14,14 +14,19 @@ Mỗi giai đoạn (period) gồm 3 bản nhãn:
 ## Tính năng
 
 - **Sinh PDF nhãn** theo đúng khổ giấy 5×6 nhãn/tờ, tự động phân trang.
-- **Xem trước nhãn** ngay trên web trước khi tải PDF: chọn số trang để xem bố cục,
-  nội dung từng nhãn (bao gồm nhãn tiêu đề của từng giai đoạn/bản) đúng như khi in.
+- **Xem trước nhãn** ngay trên web trước khi tải PDF: xem trang đầu tiên (Ống Tổng -
+  Giai đoạn 1) để kiểm tra nhanh hình dạng và nội dung chữ có ổn hay không trước khi in.
 - **Ghi nhớ thông số đã nhập lần cuối**: mã nghiên cứu, số người tình nguyện, số giai
   đoạn, số thời điểm lấy mẫu được lưu vào file `last_params.json` cạnh ứng dụng và tự
   động điền lại ở lần mở sau, giúp không phải nhập lại từ đầu.
   > Lưu ý: nếu chạy trên nền tảng hosting có filesystem tạm thời (ví dụ Streamlit
   > Community Cloud), file này có thể bị xóa khi app khởi động lại/redeploy. Khi chạy
   > trên máy cá nhân (`streamlit run`), thông số sẽ được giữ lại lâu dài.
+- **Tuỳ chỉnh khổ nhãn (thử nghiệm)**: mục riêng, tắt theo mặc định, cho phép đổi số
+  cột/hàng mỗi trang, kích thước nhãn, khoảng cách và cỡ chữ để dùng với các loại giấy
+  tem khác ngoài Tomy A4 5×6. Có tuỳ chọn tự động co cỡ chữ theo kích thước nhãn để
+  tránh tràn chữ, và cảnh báo nếu bố cục vượt khổ giấy A4. Dùng phần Xem trước nhãn để
+  kiểm tra bố cục tuỳ chỉnh trước khi in.
 
 ## Cài đặt & chạy trên máy cá nhân
 
